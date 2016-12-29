@@ -1,19 +1,18 @@
 ﻿<%@ Control Language="VB" AutoEventWireup="false" CodeFile="UserControlQUT1.ascx.vb" Inherits="WebUserControl" %>
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxToolkit" %>
 
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script type="text/javascript">
     $(function () {
         $("[id*=txtQty]").val("0.00");
     });
-    $("[id*=txtQty]").live("change", function () {
+    $("[id*=txtQty]").on("change", function () {
         if (isNaN(parseInt($(this).val()))) {
            $(this).val('0.00');
         } else {
            $(this).val(parseInt($(this).val()).toString());
         }
     });
-    $("[id*=txtQty]").live("change", function () {
+    $("[id*=txtQty]").on("change", function () {
         if (!jQuery.trim($(this).val()) == '') {
             if (!isNaN(parseFloat($(this).val()))) {
                 var row = $(this).closest("tr");
