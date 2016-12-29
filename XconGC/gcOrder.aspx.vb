@@ -10,33 +10,26 @@ Partial Class gcOrder
     Dim userID, cardCode, projectCode As String
 
     Private Sub gcOrder_Load(sender As Object, e As EventArgs) Handles Me.Load
-        If Session("UserID") Is Nothing = True Then
-            Response.Redirect("login.aspx")
-        End If
+        'If Session("UserID") Is Nothing = True Then
+        '    Response.Redirect("login.aspx")
+        'End If
 
-        userID = Session("UserID")
         cardCode = Session("CardCode")
         projectCode = Session("ProjectCode")
+        lblCustID.Text = "C005" 'Session("CardCode")
+        lblUserID.Text = "C05" 'Session("UserID")
 
         If Page.IsPostBack = False Then
 
-            lblCustID.Text = Session("CardCode")
-            lblUserID.Text = Session("UserID")
-            'BindData(userID, cardCode)
-            'btnLoad_Click(1, e)
+
         Else
 
         End If
 
-        If (Page.IsAsync = False Or Page.IsCallback = False) Then
-            Dim client = ScriptManager.GetCurrent(Page)
-            client.RegisterPostBackControl(btnLoad)
-        End If
-        'BindData(userID, cardCode)
-
-        'ddlProject_SelectedIndexChanged(1, e)
-
-        'btn1.Attributes.Add("onClick", "return false;")
+        'Dim client = ScriptManager.GetCurrent(Page)
+        'client.RegisterAsyncPostBackControl(btnLoad)
+        'client.RegisterAsyncPostBackControl(btnUpdate)
+        'client.RegisterAsyncPostBackControl(btnCancel)
 
     End Sub
 
@@ -75,36 +68,9 @@ Partial Class gcOrder
             lblDocEntry.Text = (dt.Rows(0)(0))
 
             LoadTab(Convert.ToInt32(lblDocEntry.Text), _rangeDate)
-            'GenerateTab(Convert.ToInt32(lblDocEntry.Text), _rangeDate)
         End If
 
     End Sub
-
-    'Private Function GetFormatDate(ByVal _EarlyFrom As DateTime, ByVal _EarlyTo As DateTime, ByVal _StandardFrom As DateTime _
-    '                            , ByVal _StandardTo As DateTime, ByVal _OnSiteFrom As DateTime, ByVal _OnSiteTo As DateTime) As DateTime
-
-    '    Dim EarlyFrom, EarlyFrom_, EarlyTo, EarlyTo_, StandardFrom, StandardFrom_, StandardTo, StandardTo_, OnSiteFrom, OnSiteFrom_, OnSiteTo, OnSiteTo_ As DateTime
-
-    '    If DateTime.TryParseExact(_EarlyFrom, "dd/MM/yyyy", New System.Globalization.CultureInfo("en-US"), DateTimeStyles.None, EarlyFrom_) Then
-    '        EarlyFrom = Convert.ToDateTime(EarlyFrom_).ToString("yyyy-MM-dd")
-    '    Else
-    '        EarlyFrom = ConvertDate(_EarlyFrom)
-    '    End If
-
-    '    If DateTime.TryParseExact(_EarlyTo, "dd/MM/yyyy", New System.Globalization.CultureInfo("en-US"), DateTimeStyles.None, EarlyTo_) Then
-    '        EarlyTo = Convert.ToDateTime(EarlyFrom_).ToString("yyyy-MM-dd")
-    '    Else
-    '        EarlyTo = ConvertDate(_EarlyTo)
-    '    End If
-
-    '    If DateTime.TryParseExact(_StandardFrom, "dd/MM/yyyy", New System.Globalization.CultureInfo("en-US"), DateTimeStyles.None, StandardFrom_) Then
-    '        StandardFrom = Convert.ToDateTime(StandardFrom_).ToString("yyyy-MM-dd")
-    '    Else
-    '        StandardFrom = ConvertDate(_StandardFrom)
-    '    End If
-
-    '    Return (EarlyTo)
-    'End Function
 
     Private Sub LoadTab(ByVal docEntry As Integer, ByVal rangeDate As String)
         Dim _sql As String = "SELECT distinct U_GC_GroupType From GC_QUT1 WHERE DocEntry = '" & docEntry & "'"
@@ -132,14 +98,11 @@ Partial Class gcOrder
                 End If
                 tp.Controls.Add(ctrl1)
                 tp.ID = $"TabPanel${i + 1}"
-                '"TabPanel" + Convert.ToString(i + 1)
                 TabContainer1.Tabs.Add(tp)
 
             Next
 
             Dim n As Integer
-
-
             n = TabContainer1.Tabs.Count
 
         Else
@@ -148,12 +111,6 @@ Partial Class gcOrder
 
     End Sub
 
-    Private Sub ddlProject_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ddlProject.SelectedIndexChanged
-        'If ddlProject.SelectedValue <> -1 Then
-        'End If
-        'BindData(userID, cardCode)
-
-    End Sub
 
     Private Function ConvertDate(ByVal _str As String)
         Dim arr() As String
@@ -499,8 +456,6 @@ Partial Class gcOrder
                 txtColor.Enabled = True
             End If
 
-            'mpeSelect.Show()
-
             Dim myLinkButton As LinkButton
             myLinkButton = DirectCast(gvCurrentRow.Cells(4).FindControl("lnkSelect"), LinkButton)
             myLinkButton.Attributes.Add("onclick", "showModalPopup('" + gvCurrentRow.Cells(0).Text + "', '" + gvCurrentRow.Cells(0).Text + "');return false;")
@@ -513,6 +468,8 @@ Partial Class gcOrder
     End Sub
 
     Private Sub ClearMPE()
+        lblItemID.Text = String.Empty
+        lblItemName.Text = String.Empty
         txtLabelName.Text = String.Empty
         txtColor.Text = String.Empty
         txtSize.Text = String.Empty
@@ -561,15 +518,5 @@ Partial Class gcOrder
 
         mpeSelect.Hide()
     End Sub
-
-
-    'Protected Sub txtQty_TextChanged(sender As Object, e As EventArgs)
-    '    Dim currentRow As GridViewRow = DirectCast(DirectCast(sender, TextBox).Parent.Parent, GridViewRow)
-    '    Dim qty As TextBox = DirectCast(currentRow.FindControl("txtQty"), TextBox)
-    '    Dim totalprice As Label = DirectCast(currentRow.FindControl("lblTotal"), Label)
-
-    '    totalprice.Text = Double.Parse(qty.Text) * Double.Parse(currentRow.Cells(4).Text)
-
-    'End Sub
 
 End Class

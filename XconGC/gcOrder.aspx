@@ -4,108 +4,83 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="Server">
 
-    <%-- <ul class="nav nav-tabs">
-  <li class="active"><a href="#home" data-toggle="tab" aria-expanded="true">Home</a></li>
-  <li class=""><a href="#profile" data-toggle="tab" aria-expanded="false">Profile</a></li>
- 
-</ul>
-            <div id="myTabContent" class="tab-content">
-  <div class="tab-pane fade active in" id="home">
-    <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p>
-  </div>
-  <div class="tab-pane fade" id="profile">
-    <p>Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit.</p>
-  </div>
-
-</div>--%>
-
-
     <script type="text/javascript">
-        $(function () {
-            $("[id*=txtQty]").val("0.00");
-        });
-        $("[id*=txtQty]").on("change", function () {
-            if (isNaN(parseInt($(this).val()))) {
-                $(this).val('0.00');
-            } else {
-                $(this).val(parseInt($(this).val()).toString());
+
+        String.prototype.toNumer = function () {
+            const text = this.valueOf();
+            const result = parseFloat(text.replace(/,/g, ""));
+            return isNaN(result) ? 0 : result;
+        }
+
+        var txtQtyChanged = (e) => {
+
+            const $txtQty = $(e.target);
+
+            // check is empty string
+            if ($.trim($txtQty.val()) === '') {
+                $(e.target).val('0');
+                return;
             }
-        });
-        $("[id*=txtQty]").on("change", function () {
-            if (!jQuery.trim($(this).val()) == '') {
-                if (!isNaN(parseFloat($(this).val()))) {
-                    var row = $(this).closest("tr");
-                    $("[id*=lblTotal]", row).html(parseFloat($(".price", row).html()) * parseFloat($(this).val()));
-                }
-            } else {
-                $(this).val('');
+
+            // check is NaN            
+            const qty = $txtQty.val().toNumer();
+            if (qty === 0) {
+                $(e.target).val('0');
+                return;
             }
+
+            const row = $txtQty.closest("tr");
+            const price = $(".price", row).text().toNumer();
+            const total = price * qty;
+
+            $("#lblTotal", row).text(total);
+
             var grandTotal = 0.00;
             var tax = 0.00;
             var grandTotalTax = 0.00;
 
-            $("[id*=lblTotal]").each(function () {
-                grandTotal = grandTotal + parseFloat($(this).html());
-                tax = grandTotal * (7 / 100);
-                grandTotalTax = grandTotal + tax;
+            $("[id=lblTotal]").each((idx, elm) => {
+                const _total = $(elm).text().toNumer();
+                if (!isNaN(_total)) {
+                    grandTotal = grandTotal + _total;
+                    tax = grandTotal * (7 / 100);
+                    grandTotalTax = grandTotal + tax;
+                }
             });
-            $("[id*=lblGrandTotal]").html(grandTotal.toFixed(2).toString());
-            $("[id*=lblTax]").html(tax.toFixed(2).toString());
-            $("[id*=lblGrandTotalTax]").html(grandTotalTax.toFixed(2).toString());
 
-        <%--$('#<%= lblGrandTotal.ClientID %>').val(grandTotal);
-        $('#<%= lblTax.ClientID %>').val(tax);
-        $('#<%= lblGrandTotalTax.ClientID %>').val(grandTotalTax);--%>
+            $("#lblGrandTotal").text(grandTotal.toFixed(2).toString());
+            $("#lblTax").text(tax.toFixed(2).toString());
+            $("#lblGrandTotalTax").text(grandTotalTax.toFixed(2).toString());
+        };
 
-            $('#<%= hdTotal.ClientID%>').val(grandTotal);
-            $('#<%= hdTax.ClientID%>').val(tax);
-            $('#<%= hdGrandTotal.ClientID%>').val(grandTotalTax);
-        });
+        var lnkSelectClick = (e) => {
+            e.preventDefault();
+            const row = $(e.target).closest("tr");
+            const code = $(".itemCode", row).text();
+            const name = $(".itemName", row).text();
 
-        $("[id*=lnkSelect]").on("click", function () {
-            var row = $(this).closest("tr");
-            $("[id*=lblItemID]", row).html($(".itemCode", row).html());
-            $("[id*=lblItemName]", row).html($(".itemName", row).html());
-        });
+            const $panel = $("[id*=panelDetailItem]");
+            $("[id*=lblItemID]", $panel).text(code);
+            $("[id*=lblItemName]", $panel).text(name);
+
+            // open dialog
+            $("#btnShowPanel").click();
+        };
+
+        var btnCancelClick = (e) => {
+            e.preventDefault();
+            __doPostBack($(e.currentTarget)[0].id, "");
+        };
+
         $(() => {
-            console.log('hello bird from hidding');
+            $(document)
+                .on("click", "[id=lnkSelect]", this.lnkSelectClick)
+                .on("change", "[id=txtQty]", this.txtQtyChanged)
+                //.on("click", "[id=btnCancel]", this.btnCancelClick)
+            ;
         });
 
     </script>
-
-    <%--   <script type="text/javascript">
-        function showModalPopup(itemCode, itemName) {
-            //show the ModalPopupExtender
-            $get("<%=lblItemID.ClientID %>").value = itemCode;
-            $get("<%=lblItemName.ClientID %>").value = itemName;
-            $find("mpe").show();
-        }
-    </script>--%>
-
-    <%--<script type="text/javascript">
-        function ShowModalPopup() {
-            $find("mpe").show();
-
-        return false;
-    }
-    function HideModalPopup() {
-        $find("mpe").hide();
-        return false;
-    }
-</script>--%>
-
-    <%-- <input type="hidden" id="_ispostback" value="<%=Page.IsPostBack.ToString()%>" />
-<script type="text/javascript">
-        var isPostback =document.getElementById('_ispostback').value;
-        if (!isPostback)
-        {
-            
-        }  //populate jquery dialog
-        else
-        {
-            
-        }//
-</script>--%>
 
     <style type="text/css">
         .MyTabStyle .ajax__tab_header {
@@ -156,29 +131,6 @@
             border-top-color: #ffffff;
         }
     </style>
-
-    <%--    <script>
-        $(function () {
-            var tabs = $('#myTab a');
-            var counter = 0;
-            window.setInterval(activateTab, 5000);
-            function activateTab() {
-                // remove active class from all the tabs
-                tabs.removeClass('active');
-                var currentLink = tabs[counter];
-
-                $('.tab-pane').removeClass('.active').hide();
-                currentLink.addClass('active');
-                $(currentLink.attr('href')).addClass('active').show();
-                if (counter < tabs.length)
-                    counter = counter + 1;
-                else
-                    counter = 0;
-            }
-        });
-    </script>--%>
-
-
 
     <div class="panel panel-primary">
         <div class="panel-heading">
@@ -231,16 +183,6 @@
 
                             <asp:Label ID="lblProjectName" runat="server" CssClass=""></asp:Label>
 
-                            <asp:DropDownList ID="ddlProject" runat="server" AppendDataBoundItems="True" AutoPostBack="True" CssClass="btn btn-default" DataSourceID="SqlDataSourceProject" DataTextField="ProjectName" DataValueField="CardCode">
-                                <asp:ListItem Value="-1">SELECT</asp:ListItem>
-                            </asp:DropDownList>
-                            <asp:SqlDataSource ID="SqlDataSourceProject" runat="server" ConnectionString="<%$ ConnectionStrings:XCON_GCConnectionString %>" SelectCommand="SELECT T1.CardCode, T1.CardName, T0.CardName AS ProjectName, T0.CardCode AS ProjectCode FROM GC_OQUT AS T0 INNER JOIN GC_USER AS T1 ON T0.CardCode = T1.ProjectCode WHERE (T1.UserID = @UserID) AND (T1.CardCode = @CardCode)">
-                                <SelectParameters>
-                                    <asp:SessionParameter Name="UserID" SessionField="UserID" />
-                                    <asp:SessionParameter Name="CardCode" SessionField="CardCode" />
-                                </SelectParameters>
-                            </asp:SqlDataSource>
-
                             <br />
                         </td>
                         <td>&nbsp;</td>
@@ -284,11 +226,11 @@
 
                 <ajaxToolkit:TabContainer ID="TabContainer1" runat="server" ActiveTabIndex="0" CssClass="MyTabStyle">
                 </ajaxToolkit:TabContainer>
-                <ajaxToolkit:ModalPopupExtender ID="mpeSelect" runat="server" BehaviorID="TabContainer1_ModalPopupExtender" BackgroundCssClass="modalBackground" PopupControlID="panel1" TargetControlID="btnShowPanel">
+                <ajaxToolkit:ModalPopupExtender ID="mpeSelect" runat="server" BehaviorID="TabContainer1_ModalPopupExtender" BackgroundCssClass="modalBackground" PopupControlID="panelDetailItem" TargetControlID="btnShowPanel">
                 </ajaxToolkit:ModalPopupExtender>
-                <asp:Button ID="btnShowPanel" runat="server" Text="" Style="display: none;" />
+                <asp:Button ID="btnShowPanel" runat="server" Text="" Style="display: none;" ClientIDMode="Static" />
 
-                <asp:Panel ID="panel1" runat="server" BackColor="transparent">
+                <asp:Panel ID="panelDetailItem" runat="server" BackColor="transparent">
 
                     <div class="panel panel-primary">
                         <div class="panel-heading">
@@ -446,9 +388,9 @@
                         <asp:Label ID="Label3" runat="server" Text="Total Aft. Tax"></asp:Label>
                     </div>
                     <div class="col-sm-2" style="text-align: right;">
-                        <asp:Label ID="lblGrandTotal" runat="server"></asp:Label><br />
-                        <asp:Label ID="lblTax" runat="server"></asp:Label><br />
-                        <asp:Label ID="lblGrandTotalTax" runat="server"></asp:Label>
+                        <asp:Label ID="lblGrandTotal" runat="server" ClientIDMode="Static"></asp:Label><br />
+                        <asp:Label ID="lblTax" runat="server" ClientIDMode="Static"></asp:Label><br />
+                        <asp:Label ID="lblGrandTotalTax" runat="server" ClientIDMode="Static"></asp:Label>
                         <br />
                         <br />
                     </div>
@@ -458,23 +400,6 @@
                 </div>
                 <br />
                 <br />
-
-                <br />
-
-                <%-- <ul class="nav nav-tabs">
-  <li class="active"><a href="#home" data-toggle="tab" aria-expanded="true">Home</a></li>
-  <li class=""><a href="#profile" data-toggle="tab" aria-expanded="false">Profile</a></li>
- 
-</ul>
-            <div id="myTabContent" class="tab-content">
-  <div class="tab-pane fade active in" id="home">
-    <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p>
-  </div>
-  <div class="tab-pane fade" id="profile">
-    <p>Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit.</p>
-  </div>
-
-</div>--%>
             </fieldset>
         </div>
     </div>
