@@ -2,9 +2,12 @@
 Imports System.Data.SqlClient
 Imports AjaxControlToolkit
 Imports System.Globalization
+Imports System.IO
 
 Partial Class gcOrder
     Inherits System.Web.UI.Page
+    Implements ICallbackEventHandler
+
     Dim db As New DataManager("XCON_GCConnectionString")
     Dim dt, dtbind As DataTable
     Dim userID, cardCode, projectCode As String
@@ -25,6 +28,24 @@ Partial Class gcOrder
         Else
 
         End If
+
+
+        If Page.IsCallback = False Then
+
+            Page.ClientScript.GetCallbackEventReference(Me, "", "", "")
+
+            If Page.ClientScript.IsClientScriptIncludeRegistered("JQuery") = False Then
+                Page.ClientScript.RegisterClientScriptInclude("JQuery", Page.ResolveUrl("~/Scripts/jquery-1.10.2.js"))
+            End If
+
+            If Page.ClientScript.IsClientScriptIncludeRegistered("Default") = False Then
+                Page.ClientScript.RegisterClientScriptInclude("Default", Page.ResolveUrl("~/Scripts/xconapp.js"))
+            End If
+
+
+        End If
+
+
 
         'Dim client = ScriptManager.GetCurrent(Page)
         'client.RegisterAsyncPostBackControl(btnLoad)
@@ -78,6 +99,9 @@ Partial Class gcOrder
         dt = db.getDataTableByQuery(_sql, "GroupType")
 
         If dt IsNot Nothing Then
+            If TabContainer1.Tabs.Count > 1 Then
+                TabContainer1.Tabs.Clear()
+            End If
             For i As Integer = 0 To dt.Rows.Count - 1
                 Dim tp As New TabPanel()
                 If dt.Rows(i)(0) Is DBNull.Value Then
@@ -97,7 +121,7 @@ Partial Class gcOrder
                     lblRange.Text = id
                 End If
                 tp.Controls.Add(ctrl1)
-                tp.ID = $"TabPanel${i + 1}"
+                tp.ID = $"TabPanel{i + 1}"
                 TabContainer1.Tabs.Add(tp)
 
             Next
@@ -432,51 +456,9 @@ Partial Class gcOrder
         BindData(lblUserID.Text, lblCustID.Text)
     End Sub
 
-    Private Sub gvOrder3_RowCommand(sender As Object, e As GridViewCommandEventArgs)
-        lblGvorder.Text = ""
-        ClearMPE()
-        If e.CommandName.ToUpper = "SELECT" Then
-            Dim gvCurrentRow As GridViewRow = e.CommandSource.Parent.Parent
-            lblItemID.Text = gvCurrentRow.Cells(0).Text.ToString()
-            lblItemName.Text = gvCurrentRow.Cells(1).Text.ToString()
-            lblGvorder.Text = "gvOrder3"
-            lblGvRowIndex.Text = gvCurrentRow.RowIndex
-
-            If gvCurrentRow.Cells(6).Text.ToString() = "N" And gvCurrentRow.Cells(7).Text.ToString() = "N" Then
-                txtSize.Enabled = False
-                txtColor.Enabled = False
-            ElseIf gvCurrentRow.Cells(6).Text.ToString() = "N" And gvCurrentRow.Cells(7).Text.ToString() = "Y" Then
-                txtSize.Enabled = False
-                txtColor.Enabled = True
-            ElseIf gvCurrentRow.Cells(6).Text.ToString() = "Y" And gvCurrentRow.Cells(7).Text.ToString() = "N" Then
-                txtSize.Enabled = True
-                txtColor.Enabled = False
-            Else
-                txtSize.Enabled = True
-                txtColor.Enabled = True
-            End If
-
-            Dim myLinkButton As LinkButton
-            myLinkButton = DirectCast(gvCurrentRow.Cells(4).FindControl("lnkSelect"), LinkButton)
-            myLinkButton.Attributes.Add("onclick", "showModalPopup('" + gvCurrentRow.Cells(0).Text + "', '" + gvCurrentRow.Cells(0).Text + "');return false;")
-        End If
-    End Sub
-
-    Protected Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
-        ClearMPE()
-        mpeSelect.Hide()
-    End Sub
-
-    Private Sub ClearMPE()
-        lblItemID.Text = String.Empty
-        lblItemName.Text = String.Empty
-        txtLabelName.Text = String.Empty
-        txtColor.Text = String.Empty
-        txtSize.Text = String.Empty
-        txtRem1.Text = String.Empty
-        txtRem2.Text = String.Empty
-    End Sub
-    Protected Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
+    Public Shared Sub updateItem(doii As Object)
+        Dim birdNood As String
+        birdNood = "Doii++"
         'Select Case lblGvorder.Text
         '    Case "gvOrder1"
         '        gvOrder1.Rows(Convert.ToInt32(lblGvRowIndex.Text)).Cells(8).Text = txtLabelName.Text
@@ -516,7 +498,44 @@ Partial Class gcOrder
         '        gvOrder6.Rows(Convert.ToInt32(lblGvRowIndex.Text)).Cells(12).Text = txtRem2.Text
         'End Select
 
-        mpeSelect.Hide()
+
     End Sub
 
+    Protected Sub AsyncFileUpload_UploadedComplete(sender As Object, e As AsyncFileUploadEventArgs) Handles _
+        AsyncFileUpload1.UploadedComplete _
+        , AsyncFileUpload2.UploadedComplete _
+        , AsyncFileUpload3.UploadedComplete _
+        , AsyncFileUpload4.UploadedComplete _
+        , AsyncFileUpload5.UploadedComplete
+
+        Dim context As AsyncFileUpload = DirectCast(sender, AsyncFileUpload)
+        If context IsNot Nothing Then
+
+            Dim slot As Integer = 5
+
+            If context.ClientID.Contains("AsyncFileUpload1") Then
+                slot = 1
+            ElseIf context.ClientID.Contains("AsyncFileUpload2") Then
+                slot = 2
+            ElseIf context.ClientID.Contains("AsyncFileUpload3") Then
+                slot = 3
+            ElseIf context.ClientID.Contains("AsyncFileUpload4") Then
+                slot = 4
+            End If
+
+            FileUtils.SaveOrderFile(hidItemCode.Value, slot, context.PostedFile)
+
+        End If
+
+    End Sub
+
+    Public Sub RaiseCallbackEvent(eventArgument As String) Implements ICallbackEventHandler.RaiseCallbackEvent
+        If eventArgument = "UPDATE_ITEM" Then
+
+        End If
+    End Sub
+
+    Public Function GetCallbackResult() As String Implements ICallbackEventHandler.GetCallbackResult
+        Return "Return from Nood world"
+    End Function
 End Class

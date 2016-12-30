@@ -1,7 +1,7 @@
 ﻿<%@ Control Language="VB" AutoEventWireup="false" CodeFile="UserControlQUT1.ascx.vb" Inherits="WebUserControl" %>
-<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxToolkit" %>
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxToolkit"  %>
 
-<asp:GridView ID="gvGcOrder" runat="server" AutoGenerateColumns="False" BackColor="White" BorderColor="#DEDFDE" BorderStyle="None" BorderWidth="1px" CellPadding="4" DataSourceID="SqlDataSourceQUT1" ForeColor="Black" GridLines="Vertical" Width="100%">
+<asp:GridView ID="gvGcOrder" runat="server" AutoGenerateColumns="False" BackColor="White" BorderColor="#DEDFDE" BorderStyle="None" BorderWidth="1px" CellPadding="4" DataSourceID="SqlDataSourceQUT1" ForeColor="Black" GridLines="Vertical" Width="100%" ViewStateMode="Enabled">
     <AlternatingRowStyle BackColor="White" />
     <Columns>
         <asp:BoundField DataField="ItemCode" HeaderText="ItemCode" SortExpression="ItemCode" >
@@ -33,11 +33,11 @@
         </asp:TemplateField>
         <asp:BoundField DataField="U_Size" HeaderText="Size" SortExpression="U_Size">
         <HeaderStyle CssClass="hidden" />
-        <ItemStyle CssClass="hidden" />
+        <ItemStyle CssClass="hidden itemSize" />
         </asp:BoundField>
         <asp:BoundField DataField="U_Color" HeaderText="Color" SortExpression="U_Color">
         <HeaderStyle CssClass="hidden" />
-        <ItemStyle CssClass="hidden" />
+        <ItemStyle CssClass="hidden itemColor" />
         </asp:BoundField>
         <asp:TemplateField HeaderText="AttachFile" Visible="False">
             <ItemTemplate>

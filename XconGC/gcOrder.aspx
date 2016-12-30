@@ -4,84 +4,6 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="Server">
 
-    <script type="text/javascript">
-
-        String.prototype.toNumer = function () {
-            const text = this.valueOf();
-            const result = parseFloat(text.replace(/,/g, ""));
-            return isNaN(result) ? 0 : result;
-        }
-
-        var txtQtyChanged = (e) => {
-
-            const $txtQty = $(e.target);
-
-            // check is empty string
-            if ($.trim($txtQty.val()) === '') {
-                $(e.target).val('0');
-                return;
-            }
-
-            // check is NaN            
-            const qty = $txtQty.val().toNumer();
-            if (qty === 0) {
-                $(e.target).val('0');
-                return;
-            }
-
-            const row = $txtQty.closest("tr");
-            const price = $(".price", row).text().toNumer();
-            const total = price * qty;
-
-            $("#lblTotal", row).text(total);
-
-            var grandTotal = 0.00;
-            var tax = 0.00;
-            var grandTotalTax = 0.00;
-
-            $("[id=lblTotal]").each((idx, elm) => {
-                const _total = $(elm).text().toNumer();
-                if (!isNaN(_total)) {
-                    grandTotal = grandTotal + _total;
-                    tax = grandTotal * (7 / 100);
-                    grandTotalTax = grandTotal + tax;
-                }
-            });
-
-            $("#lblGrandTotal").text(grandTotal.toFixed(2).toString());
-            $("#lblTax").text(tax.toFixed(2).toString());
-            $("#lblGrandTotalTax").text(grandTotalTax.toFixed(2).toString());
-        };
-
-        var lnkSelectClick = (e) => {
-            e.preventDefault();
-            const row = $(e.target).closest("tr");
-            const code = $(".itemCode", row).text();
-            const name = $(".itemName", row).text();
-
-            const $panel = $("[id*=panelDetailItem]");
-            $("[id*=lblItemID]", $panel).text(code);
-            $("[id*=lblItemName]", $panel).text(name);
-
-            // open dialog
-            $("#btnShowPanel").click();
-        };
-
-        var btnCancelClick = (e) => {
-            e.preventDefault();
-            __doPostBack($(e.currentTarget)[0].id, "");
-        };
-
-        $(() => {
-            $(document)
-                .on("click", "[id=lnkSelect]", this.lnkSelectClick)
-                .on("change", "[id=txtQty]", this.txtQtyChanged)
-                //.on("click", "[id=btnCancel]", this.btnCancelClick)
-            ;
-        });
-
-    </script>
-
     <style type="text/css">
         .MyTabStyle .ajax__tab_header {
             font-family: "Helvetica Neue", Arial, Sans-Serif;
@@ -223,32 +145,32 @@
                 <br />
                 <br />
 
-
-                <ajaxToolkit:TabContainer ID="TabContainer1" runat="server" ActiveTabIndex="0" CssClass="MyTabStyle">
+                <ajaxToolkit:TabContainer ID="TabContainer1" runat="server" ActiveTabIndex="0" CssClass="MyTabStyle" ViewStateMode="Enabled">
                 </ajaxToolkit:TabContainer>
-                <ajaxToolkit:ModalPopupExtender ID="mpeSelect" runat="server" BehaviorID="TabContainer1_ModalPopupExtender" BackgroundCssClass="modalBackground" PopupControlID="panelDetailItem" TargetControlID="btnShowPanel">
+                <ajaxToolkit:ModalPopupExtender ID="modalDetailItem" runat="server" BehaviorID="TabContainer1_ModalPopupExtender" BackgroundCssClass="modalBackground" PopupControlID="panelDetailItem" TargetControlID="btnShowPanel" CancelControlID="btnCancel" OkControlID="btnUpdate">
                 </ajaxToolkit:ModalPopupExtender>
                 <asp:Button ID="btnShowPanel" runat="server" Text="" Style="display: none;" ClientIDMode="Static" />
-
                 <asp:Panel ID="panelDetailItem" runat="server" BackColor="transparent">
-
                     <div class="panel panel-primary">
                         <div class="panel-heading">
                             <h3 class="panel-title">Item Detail</h3>
                         </div>
                         <div class="panel-body">
-                            <table style="width: 400px; background-color: #303030; color: white;">
+                            <asp:HiddenField ID="hidItemCode" runat="server" ClientIDMode="Static" />
+                            <table id="formDetailItem" style="width: 450px; background-color: #303030; color: white;">
                                 <tr>
                                     <td>
-                                        <asp:Label ID="lblItemID" runat="server" Text=""></asp:Label>
+                                        <asp:Label ID="pop_lblItemID" runat="server" Text=""></asp:Label>
                                     </td>
                                     <td>&nbsp;</td>
-                                    <td>
-                                        <asp:Label ID="lblItemName" runat="server" Text=""></asp:Label>
+                                    <td style="width: 320px;">
+                                        <asp:Label ID="pop_lblItemName" runat="server" Text=""></asp:Label>
                                     </td>
+                                    <td style="width: 35px;">&nbsp;</td>
                                 </tr>
                                 <tr>
                                     <td></td>
+                                    <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                 </tr>
@@ -257,11 +179,13 @@
                                     </td>
                                     <td>&nbsp;</td>
                                     <td>
-                                        <asp:TextBox ID="txtLabelName" runat="server"></asp:TextBox>
+                                        <asp:TextBox ID="pop_txtLabelName" runat="server"></asp:TextBox>
                                     </td>
+                                    <td>&nbsp;</td>
                                 </tr>
                                 <tr>
                                     <td></td>
+                                    <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                 </tr>
@@ -270,11 +194,13 @@
                                     </td>
                                     <td>&nbsp;</td>
                                     <td>
-                                        <asp:TextBox ID="txtColor" runat="server"></asp:TextBox>
+                                        <asp:TextBox ID="pop_txtColor" runat="server"></asp:TextBox>
                                     </td>
+                                    <td>&nbsp;</td>
                                 </tr>
                                 <tr>
                                     <td></td>
+                                    <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                 </tr>
@@ -283,11 +209,13 @@
                                     </td>
                                     <td>&nbsp;</td>
                                     <td>
-                                        <asp:TextBox ID="txtSize" runat="server"></asp:TextBox>
+                                        <asp:TextBox ID="pop_txtSize" runat="server"></asp:TextBox>
                                     </td>
+                                    <td>&nbsp;</td>
                                 </tr>
                                 <tr>
                                     <td></td>
+                                    <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                 </tr>
@@ -296,11 +224,13 @@
                                     </td>
                                     <td>&nbsp;</td>
                                     <td>
-                                        <asp:TextBox ID="txtRem1" runat="server"></asp:TextBox>
+                                        <asp:TextBox ID="pop_txtRem1" runat="server"></asp:TextBox>
                                     </td>
+                                    <td>&nbsp;</td>
                                 </tr>
                                 <tr>
                                     <td></td>
+                                    <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                 </tr>
@@ -309,10 +239,12 @@
                                     </td>
                                     <td>&nbsp;</td>
                                     <td>
-                                        <asp:TextBox ID="txtRem2" runat="server"></asp:TextBox>
+                                        <asp:TextBox ID="pop_txtRem2" runat="server"></asp:TextBox>
                                     </td>
+                                    <td>&nbsp;</td>
                                 </tr>
                                 <tr>
+                                    <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
@@ -321,52 +253,62 @@
                                     <td>AttachFiles</td>
                                     <td>&nbsp;</td>
                                     <td>
-                                        <asp:FileUpload ID="fldAttach1" runat="server" />
+                                        <ajaxToolkit:AsyncFileUpload ID="AsyncFileUpload1" runat="server" ThrobberID="myThrobber1" OnClientUploadComplete="uploadComplete" OnClientUploadError="uploadError" />
+
                                     </td>
+
+                                    <td><span id="myThrobber1" runat="server">
+                                        <img alt="" src="imgs/uploading.gif"></span></td>
+
                                 </tr>
                                 <tr>
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                     <td>
-                                        <asp:FileUpload ID="fldAttach2" runat="server" />
+                                        <ajaxToolkit:AsyncFileUpload ID="AsyncFileUpload2" runat="server" ThrobberID="myThrobber2" />
+
                                     </td>
+                                    <td><span id="myThrobber2" runat="server">
+                                        <img alt="" src="imgs/uploading.gif"></span></td>
                                 </tr>
                                 <tr>
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                     <td>
-                                        <asp:FileUpload ID="fldAttach3" runat="server" />
+                                        <ajaxToolkit:AsyncFileUpload ID="AsyncFileUpload3" runat="server" ThrobberID="myThrobber3" />
+
                                     </td>
+                                    <td><span id="myThrobber3" runat="server">
+                                        <img alt="" src="imgs/uploading.gif"></span></td>
                                 </tr>
                                 <tr>
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                     <td>
-                                        <asp:FileUpload ID="fldAttach4" runat="server" />
+                                        <ajaxToolkit:AsyncFileUpload ID="AsyncFileUpload4" runat="server" ThrobberID="myThrobber4" />
+
                                     </td>
+                                    <td><span id="myThrobber4" runat="server">
+                                        <img alt="" src="imgs/uploading.gif"></span></td>
                                 </tr>
                                 <tr>
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                     <td>
-                                        <asp:FileUpload ID="fldAttach5" runat="server" />
+                                        <ajaxToolkit:AsyncFileUpload ID="AsyncFileUpload5" runat="server" ThrobberID="myThrobber5" />
+
                                     </td>
-                                </tr>
-                                <tr>
-                                    <td></td>
-                                    <td>&nbsp;</td>
-                                    <td>
-                                        <asp:Label ID="lblGvRowIndex" runat="server" Text="" Visible="false"></asp:Label>
-                                        <asp:Label ID="lblGvorder" runat="server" Text="" Visible="false"></asp:Label>
-                                    </td>
+                                    <td><span id="myThrobber5" runat="server">
+                                        <img alt="" src="imgs/uploading.gif"></span></td>
                                 </tr>
                                 <tr>
                                     <td></td>
                                     <td>&nbsp;</td>
                                     <td style="text-align: right;">
-                                        <asp:Button ID="btnUpdate" runat="server" Text="Update" CssClass="btn btn-primary" />
-                                        <asp:Button ID="btnCancel" runat="server" Text="Exit" CssClass="btn btn-Default" />
+                                        <asp:Button ID="btnUpdate" runat="server" Text="Update" CssClass="btn btn-primary" ClientIDMode="Static" />
+                                        <asp:Button ID="btnCancel" runat="server" Text="Exit" CssClass="btn btn-Default" ClientIDMode="Static" />
                                     </td>
+                                    <td style="text-align: right;">&nbsp;</td>
                                 </tr>
 
                             </table>
@@ -375,7 +317,6 @@
                     </div>
 
                 </asp:Panel>
-
                 <br />
                 <div class="col-sm-12">
                     <div class="col-sm-8">

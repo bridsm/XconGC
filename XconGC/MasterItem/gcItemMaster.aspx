@@ -166,7 +166,7 @@
                       <asp:RangeValidator ID="RangeValidator3" runat="server" ErrorMessage="*" ControlToValidate="txtPrice2" MinimumValue=".00" MaximumValue="999999999999999.99"></asp:RangeValidator>
                   </ItemTemplate>
               </asp:TemplateField>
-              <asp:TemplateField HeaderText="U_Size" SortExpression="U_Size">
+              <asp:TemplateField HeaderText="Size" SortExpression="U_Size">
                   <EditItemTemplate>
                       <asp:TextBox ID="TextBox5" runat="server" Text='<%# Bind("U_Size") %>'></asp:TextBox>
                   </EditItemTemplate>
@@ -177,7 +177,7 @@
                       </asp:DropDownList>
                   </ItemTemplate>
               </asp:TemplateField>
-              <asp:TemplateField HeaderText="U_Color" SortExpression="U_Color">
+              <asp:TemplateField HeaderText="Color" SortExpression="U_Color">
                   <EditItemTemplate>
                       <asp:TextBox ID="TextBox6" runat="server" Text='<%# Bind("U_Color") %>'></asp:TextBox>
                   </EditItemTemplate>
